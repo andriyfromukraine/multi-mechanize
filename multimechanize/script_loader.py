@@ -54,6 +54,14 @@ class ScriptValidator(object):
         if problem:
             raise InvalidScriptError, problem
 
+    @classmethod
+    def check_module_valid(cls, module):
+        """
+        Validates that a script module is valid.
+        """
+        problem = cls.check_module_invalid(module)
+        return not problem
+
 class ScriptLoader(object):
     """Utility class to load scripts as python modules."""
 
@@ -103,8 +111,9 @@ class ScriptLoader(object):
             if basename.startswith("_"):
                 continue    #< SKIP: __init__.py, ...
             module = cls.load(os.path.normpath(script))
-            modules[module.__name__] = module
             if validate:
                 ScriptValidator.ensure_module_valid(module)
+            elif ScriptValidator.check_module_valid(module):
+                modules[module.__name__] = module
         return modules
 
